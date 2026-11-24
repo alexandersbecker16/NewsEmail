@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Daily News Brief</title>
+  <link rel="stylesheet" href="/static/styles.css?v=5" />
+</head>
+<body>
+  <div class="bg-grid" aria-hidden="true"></div>
+  <main class="shell narrow">
+    <header class="hero compact">
+      <h1>Daily News Brief</h1>
+      <p class="lede">Five headlines emailed once a day at the time you choose.</p>
+      <p class="note">If your computer is off or asleep at send time, the email is sent about a minute after you turn it back on. More than one email can go out on the same day.</p>
+    </header>
+
+    <section class="panel simple">
+      <label class="toggle big">
+        <input type="checkbox" id="enabled" />
+        <span id="enabledLabel">Emails on</span>
+      </label>
+
+      <label class="field">
+        <span>Send time</span>
+        <input type="time" id="sendTime" required />
+      </label>
+
+      <label class="field">
+        <span>Email title</span>
+        <input type="text" id="emailTitle" placeholder="Daily News Brief" />
+      </label>
+
+      <div class="field">
+        <span>Recipients</span>
+        <div class="chip-row" id="recipientChips"></div>
+        <div class="add-row">
+          <input type="email" id="newEmail" placeholder="Add an email address" />
+          <button type="button" class="btn ghost" id="addEmailBtn">Add</button>
+        </div>
+      </div>
+
+      <div class="from-block">
+        <p class="from-label">Comes from</p>
+        <label class="field">
+          <span>Name</span>
+          <input type="text" id="fromName" placeholder="Daily News Brief" />
+        </label>
+        <label class="field">
+          <span>Email</span>
+          <input type="email" id="fromEmail" placeholder="you@gmail.com" />
+        </label>
+        <label class="field">
+          <span>Gmail app password</span>
+          <input type="password" id="fromPassword" placeholder="Paste only the 16 letters" autocomplete="current-password" />
+        </label>
+      </div>
+
+      <button type="button" class="btn primary full" id="saveBtn">Save</button>
+      <p class="toast" id="toast" hidden></p>
+      <p class="meta center" id="statusMeta"></p>
+    </section>
+  </main>
+  <script src="/static/app.js?v=5"></script>
+</body>
+</html>
