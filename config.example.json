@@ -5,7 +5,7 @@
   "recipients": ["you@example.com"],
   "from_name": "Daily News Brief",
   "from_email": "you@gmail.com",
-  "password": "your-app-password",
+  "password": "",
   "last_sent": null,
   "last_error": null
 }

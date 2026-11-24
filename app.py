@@ -70,15 +70,20 @@ def update_config():
             return jsonify({"ok": False, "error": "From email looks invalid."}), 400
         config["from_email"] = from_email
 
-    if "password" in payload and str(payload["password"]).strip():
-        config["password"] = str(payload["password"]).strip()
+    if "password" in payload:
+        # Gmail shows app passwords in groups of four. Store the letters only.
+        password = re.sub(r"\s+", "", str(payload["password"]))
+        if password:
+            config["password"] = password
+
+    # Write config.json before scheduling so the password is saved even if
+    # Windows Task Scheduler cannot be updated.
+    save_config(config)
 
     try:
         schedule_msg = sync_scheduled_task(config["enabled"], config["send_time"])
     except Exception as exc:
         return jsonify({"ok": False, "error": f"Could not update schedule: {exc}"}), 500
-
-    save_config(config)
     return jsonify(
         {
             "ok": True,
