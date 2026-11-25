@@ -3,14 +3,20 @@ cd /d "%~dp0"
 
 where python >nul 2>&1
 if errorlevel 1 (
-  echo Python was not found on PATH. Install Python 3.12+ and try again.
-  pause
-  exit /b 1
+  where py >nul 2>&1
+  if errorlevel 1 (
+    echo Python was not found. Install Python 3.12+ from https://www.python.org/downloads/ and check "Add python.exe to PATH".
+    pause
+    exit /b 1
+  )
+  set "PY=py -3"
+) else (
+  set "PY=python"
 )
 
 if not exist ".venv\Scripts\python.exe" (
   echo Creating virtual environment...
-  python -m venv .venv
+  %PY% -m venv .venv
   if errorlevel 1 (
     echo Failed to create virtual environment.
     pause

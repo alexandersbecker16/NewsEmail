@@ -1,7 +1,8 @@
 """
 Entrypoint for Windows Task Scheduler.
-Runs at the scheduled time, or after wake/sign-in if that time was missed.
-Sends at most once for each day's send time, then exits.
+Runs at the scheduled time (waking the computer if it is asleep), then exits.
+A full shutdown that missed the time sends once at the next sign-in.
+Waking from sleep does not start a send. Each send time produces one email.
 """
 
 from __future__ import annotations
@@ -52,9 +53,27 @@ def _already_sent_today(config: dict, due: datetime) -> bool:
     return sent_at is not None and sent_at >= due
 
 
+def _wait_for_network(timeout: int = 45) -> bool:
+    """Wi-Fi is often still down for a few seconds after a wake or boot."""
+    import socket
+
+    targets = (("1.1.1.1", 443), ("8.8.8.8", 443), ("smtp.gmail.com", 587))
+    deadline = time.time() + timeout
+    while True:
+        for host, port in targets:
+            try:
+                with socket.create_connection((host, port), timeout=3):
+                    return True
+            except OSError:
+                continue
+        if time.time() >= deadline:
+            return False
+        time.sleep(3)
+
+
 @contextmanager
 def _send_lock():
-    """Keep a wake trigger and a sign-in trigger from sending together."""
+    """Keep the daily task and a sign-in catch-up from sending together."""
     handle = LOCK_PATH.open("a+b")
     handle.seek(0)
     if handle.read(1) != b"\0":
@@ -109,6 +128,9 @@ def main() -> int:
             if _already_sent_today(config, due):
                 _log(f"Already sent for {due.strftime('%H:%M')} today — nothing sent.")
                 return 0
+
+            if not _wait_for_network():
+                raise RuntimeError("No network after waiting. The email was not sent.")
 
             headlines: list = []
             for _attempt in range(6):

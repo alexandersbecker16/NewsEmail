@@ -1,7 +1,11 @@
 .venv/
 __pycache__/
 *.pyc
+node_modules/
 config.json
 run_log.txt
 send.lock
 .env
+cloud/Config.js
+cloud/.clasp.json
+cloud/state.json

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hmac
 import re
 import webbrowser
 from datetime import datetime
@@ -9,10 +10,17 @@ from threading import Timer
 
 from flask import Flask, jsonify, render_template, request
 
+from cloud_sync import (
+    CloudSetupNeeded,
+    cloud_public_status,
+    expected_ready_token,
+    load_state,
+    mark_trigger_ready,
+    sync_cloud,
+)
 from config_store import load_config, public_config, save_config
 from email_sender import send_news_email
 from news_fetcher import fetch_headlines
-from scheduler import sync_scheduled_task, task_status
 
 app = Flask(__name__)
 
@@ -28,7 +36,7 @@ def index():
 @app.get("/api/config")
 def get_config():
     config = load_config()
-    return jsonify({"config": public_config(config), "task": task_status()})
+    return jsonify({"config": public_config(config), "cloud": cloud_public_status()})
 
 
 @app.post("/api/config")
@@ -76,12 +84,29 @@ def update_config():
         if password:
             config["password"] = password
 
+    if config.get("enabled") and (not config.get("from_email") or not config.get("recipients")):
+        return jsonify(
+            {
+                "ok": False,
+                "error": "Add your Gmail address and at least one recipient, then click On.",
+            }
+        ), 400
+
     # Write config.json before scheduling so the password is saved even if
     # Windows Task Scheduler cannot be updated.
     save_config(config)
 
     try:
-        schedule_msg = sync_scheduled_task(config["enabled"], config["send_time"])
+        schedule_msg = sync_cloud(config, prompt=True)
+    except CloudSetupNeeded as exc:
+        return jsonify(
+            {
+                "ok": True,
+                "message": str(exc),
+                "config": public_config(config),
+                "cloud": cloud_public_status(),
+            }
+        )
     except Exception as exc:
         return jsonify({"ok": False, "error": f"Could not update schedule: {exc}"}), 500
     return jsonify(
@@ -89,9 +114,42 @@ def update_config():
             "ok": True,
             "message": f"Saved. {schedule_msg}",
             "config": public_config(config),
-            "task": task_status(),
+            "cloud": cloud_public_status(),
         }
     )
+
+
+@app.post("/api/cloud/confirm")
+def cloud_confirm():
+    """Local button after the Google page. A public page cannot call back into this PC."""
+    if not load_state().get("exec_url"):
+        return jsonify({"ok": False, "error": "Finish the Google page first, then click this again."}), 400
+    mark_trigger_ready()
+    config = load_config()
+    return jsonify(
+        {
+            "ok": True,
+            "message": "Scheduled. One email a day, even if this computer is closed.",
+            "config": public_config(config),
+            "cloud": cloud_public_status(),
+        }
+    )
+
+
+@app.get("/api/cloud/ready")
+def cloud_ready():
+    token = str(request.args.get("token") or "")
+    expected = expected_ready_token()
+    if not expected or not hmac.compare_digest(token, expected):
+        return "This setup link is not valid.", 403
+    mark_trigger_ready()
+    return """<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Daily News Brief</title></head>
+<body style="font-family:Segoe UI,sans-serif;margin:48px auto;max-width:36rem;line-height:1.5;">
+<p>Scheduled. One email will send at your chosen time even if this computer is closed, asleep, or shut down.</p>
+<p>Opening the computer does not send another email.</p>
+<p><a href="/">Back to Daily News Brief</a></p>
+</body></html>"""
 
 
 @app.post("/api/send-now")
@@ -121,9 +179,9 @@ def send_now():
 def main() -> None:
     config = load_config()
     try:
-        sync_scheduled_task(config["enabled"], config["send_time"])
+        print(sync_cloud(config, prompt=False))
     except Exception as exc:
-        print(f"Warning: could not sync Task Scheduler: {exc}")
+        print(f"Warning: could not sync the off-computer schedule: {exc}")
 
     Timer(0.8, lambda: webbrowser.open("http://127.0.0.1:5055")).start()
     # Threaded so saving settings can't block the page from loading.

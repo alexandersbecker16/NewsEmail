@@ -10,7 +10,7 @@ from typing import Any
 CONFIG_PATH = Path(__file__).resolve().parent / "config.json"
 
 DEFAULT_CONFIG: dict[str, Any] = {
-    "enabled": True,
+    "enabled": False,
     "send_time": "08:00",
     "email_title": "Daily News Brief",
     "recipients": [],

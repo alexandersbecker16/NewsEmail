@@ -1,5 +1,5 @@
 {
-  "enabled": true,
+  "enabled": false,
   "send_time": "08:00",
   "email_title": "Daily News Brief",
   "recipients": ["you@example.com"],

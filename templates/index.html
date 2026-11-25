@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Daily News Brief</title>
-  <link rel="stylesheet" href="/static/styles.css?v=5" />
+  <link rel="stylesheet" href="/static/styles.css?v=8" />
 </head>
 <body>
   <div class="bg-grid" aria-hidden="true"></div>
@@ -12,14 +12,17 @@
     <header class="hero compact">
       <h1>Daily News Brief</h1>
       <p class="lede">Five headlines emailed once a day at the time you choose.</p>
-      <p class="note">If your computer is off or asleep at send time, the email is sent about a minute after you turn it back on. More than one email can go out on the same day.</p>
+      <p class="note">Nothing stays running on this computer. Click Off to stop the emails. When it is on, one email goes out at the send time even if this computer is closed, asleep, or shut down.</p>
     </header>
 
     <section class="panel simple">
-      <label class="toggle big">
-        <input type="checkbox" id="enabled" />
-        <span id="enabledLabel">Emails on</span>
-      </label>
+      <div class="power">
+        <span id="powerLabel">Daily email</span>
+        <div class="power-switch" role="group" aria-label="Daily email">
+          <button type="button" class="btn on" id="onBtn" aria-pressed="false">On</button>
+          <button type="button" class="btn off" id="offBtn" aria-pressed="true">Off</button>
+        </div>
+      </div>
 
       <label class="field">
         <span>Send time</span>
@@ -57,10 +60,11 @@
       </div>
 
       <button type="button" class="btn primary full" id="saveBtn">Save</button>
+      <button type="button" class="btn full" id="approvedBtn" hidden>I've finished the Google page</button>
       <p class="toast" id="toast" hidden></p>
       <p class="meta center" id="statusMeta"></p>
     </section>
   </main>
-  <script src="/static/app.js?v=5"></script>
+  <script src="/static/app.js?v=8"></script>
 </body>
 </html>
