@@ -3,4 +3,5 @@ __pycache__/
 *.pyc
 config.json
 run_log.txt
+send.lock
 .env
