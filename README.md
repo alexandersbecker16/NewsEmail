@@ -8,7 +8,7 @@ Emails five news headlines once a day. The schedule runs from the Gmail account 
 2. Clone this repository and open the folder.
 3. Double-click `start_dashboard.bat` and leave that window open.
 4. Enter the send time, who should receive the brief, and the Gmail account it should come from.
-5. Click **On**. The first time, approve the Google window with that same Gmail account, then click **I've finished the Google page**.
+5. Click **On**. The first time, a script opens. Choose **installSchedule**, click **Run**, then **Allow**. Back on Daily News Brief, click **I've finished the Google page**.
 6. Click **Off** any time you want the emails to stop. Off takes effect right away.
 
 Your settings stay in `config.json` on your computer. That file is not part of this repository, so a fresh clone starts blank and off.

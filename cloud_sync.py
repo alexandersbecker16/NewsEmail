@@ -160,12 +160,18 @@ def sync_cloud(config: dict[str, Any], *, prompt: bool = False) -> str:
         )
 
     url = _deploy_setup_page(state)
-    if prompt and url:
-        webbrowser.open(url)
+    editor = ""
+    clasp_file = CLOUD_DIR / ".clasp.json"
+    if clasp_file.exists():
+        script_id = str(json.loads(clasp_file.read_text(encoding="utf-8")).get("scriptId") or "")
+        if script_id:
+            editor = f"https://script.google.com/d/{script_id}/edit"
+    if prompt and editor:
+        webbrowser.open(editor)
     raise CloudSetupNeeded(
-        "Approve Gmail in the window that opened. After that, the email sends at "
-        f"{send_time} even if this computer is closed, asleep, or off.",
-        url=url,
+        "In the script that opened, choose installSchedule, click Run, then Allow. "
+        f"After that, one email sends at {send_time} even if this computer is closed, asleep, or off.",
+        url=editor or url,
     )
 
 

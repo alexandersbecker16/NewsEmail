@@ -107,15 +107,16 @@ function installTrigger_() {
   }
 }
 
+// Public name so the editor Run menu can start the schedule on the latest code.
+// A trigger created from the published web page stays stuck on that old copy.
+function installSchedule() {
+  installTrigger_();
+}
+
 function doGet() {
-  try {
-    installTrigger_();
-  } catch (err) {
-    return HtmlService.createHtmlOutput("<p>Could not schedule the email: " + esc_(err) + "</p>");
-  }
   var page = "<html><head><meta charset=\"utf-8\"></head><body style=\"font-family:Segoe UI,sans-serif;margin:48px auto;max-width:36rem;line-height:1.5;\">" +
-    "<p>Scheduled. The email will send at the chosen time even if the computer is closed, asleep, or off.</p>" +
-    "<p>Close this tab, go back to Daily News Brief, and click <strong>I've finished the Google page</strong>.</p></body></html>";
+    "<p>Gmail is approved. Close this tab, go back to Daily News Brief, and click <strong>I've finished the Google page</strong>.</p>" +
+    "<p>The daily email is sent from the latest saved schedule, including when the computer is closed.</p></body></html>";
   return HtmlService.createHtmlOutput(page);
 }
 
